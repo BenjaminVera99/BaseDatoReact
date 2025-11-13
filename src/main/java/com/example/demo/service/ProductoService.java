@@ -13,19 +13,19 @@ public class ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    public List<Producto> getAllProducto() {
+    public List<Producto> getAllProducts() { // Usamos Products para consistencia
         return productoRepository.findAll();
     }
 
-    public Producto getProductoById(Long id) {
+    public Producto getProductById(Long id) {
         return productoRepository.findById(id).orElse(null);
     }
 
-    public Producto saveProducto(Producto producto) {
+    public Producto saveProduct(Producto producto) {
         return productoRepository.save(producto);
     }
 
-    public void deleteProducto(Long id) {
+    public void deleteProduct(Long id) {
         productoRepository.deleteById(id);
     }
 }

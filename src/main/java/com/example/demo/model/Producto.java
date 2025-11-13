@@ -12,12 +12,12 @@ import lombok.AllArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Producto {
+public class Producto { // CLASE RENOMBRADA A PRODUCTO
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String name;        // Nombre del pastel (ej. "Torta Selva Negra")
-    private Double price;       // Precio del pastel
-    private String description; // Descripción corta
+    private String name;
+    private Double price;       // Debe coincidir con Double en el frontend (Number)
+    private String description; // Usado para guardar Category y OnSale
 }
