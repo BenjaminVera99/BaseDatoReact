@@ -1,0 +1,62 @@
+package com.example.demo.controller;
+
+import com.example.demo.security.JwtService;
+import com.example.demo.service.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/auth")
+public class UsuarioAuthController {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    // REGISTRO DE USUARIO
+    @PostMapping("/register")
+    public Map<String, String> register(@RequestBody Map<String, String> body) {
+
+        String username = body.get("username");
+        String password = body.get("password");
+
+        usuarioService.register(username, password);
+
+        return Map.of("message", "Usuario registrado correctamente");
+    }
+
+    // LOGIN DE USUARIO - DEVUELVE TOKEN JWT
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody Map<String, String> body) {
+
+        String username = body.get("username");
+        String password = body.get("password");
+
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+
+            if (auth.isAuthenticated()) {
+                String token = jwtService.generateToken(username);
+                return Map.of("token", token);
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
+    }
+}
