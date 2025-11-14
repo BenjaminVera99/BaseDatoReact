@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 public class Producto { // CLASE RENOMBRADA A PRODUCTO
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private Double price;       // Debe coincidir con Double en el frontend (Number)
