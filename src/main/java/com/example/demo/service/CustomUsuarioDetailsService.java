@@ -24,7 +24,8 @@ public class CustomUsuarioDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .withUsername(usuario.getUsername())
                 .password(usuario.getPassword())
-                .authorities("USUARIO") // ← puedes usar tu rol en español
+                .authorities("ROLE_" + usuario.getRole())  // <- ¡CORREGIDO!
                 .build();
     }
+
 }

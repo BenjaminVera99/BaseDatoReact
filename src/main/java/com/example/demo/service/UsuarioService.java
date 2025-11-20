@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class UsuarioService {
 
@@ -19,7 +17,6 @@ public class UsuarioService {
 
     public void register(String username, String password) {
 
-        // VALIDACIÓN NUEVA: correo ya registrado
         if (usuarioRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("El correo ya está registrado");
         }
@@ -28,6 +25,15 @@ public class UsuarioService {
         usuario.setUsername(username);
         usuario.setPassword(passwordEncoder.encode(password));
 
+        usuario.setRole("USER"); // 👈 rol por defecto
+
         usuarioRepository.save(usuario);
+    }
+
+    // ⭐ NUEVO: obtener rol desde la base de datos
+    public String getRoleByUsername(String username) {
+        return usuarioRepository.findByUsername(username)
+                .map(Usuario::getRole)
+                .orElse("USER");
     }
 }

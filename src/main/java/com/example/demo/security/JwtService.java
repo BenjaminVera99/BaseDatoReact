@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class JwtService {
@@ -16,8 +18,14 @@ public class JwtService {
     private static final String SECRET_KEY =
             "1234567890123456789012345678901234567890123456789012345678901234";
 
-    public String generateToken(String username) {
+    // 🔥 nuevo → generar token con claims (incluye rol)
+    public String generateToken(String username, String role) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 24h
@@ -27,6 +35,11 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
+    }
+
+    // 🔥 nuevo → obtener el rol desde el token JWT
+    public String extractRole(String token) {
+        return (String) getClaims(token).get("role");
     }
 
     public boolean validateToken(String token, String username) {

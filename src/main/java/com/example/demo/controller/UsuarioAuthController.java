@@ -54,8 +54,15 @@ public class UsuarioAuthController {
             );
 
             if (auth.isAuthenticated()) {
-                String token = jwtService.generateToken(username);
-                return Map.of("token", token);
+
+                String role = auth.getAuthorities().iterator().next().getAuthority();
+
+                String token = jwtService.generateToken(username, role);
+
+                return Map.of(
+                        "token", token,
+                        "role", role
+                );
             }
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
@@ -63,4 +70,5 @@ public class UsuarioAuthController {
 
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
     }
+
 }
