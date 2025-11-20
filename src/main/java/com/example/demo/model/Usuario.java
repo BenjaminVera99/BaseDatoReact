@@ -19,10 +19,16 @@ public class Usuario {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String username;
+    private String username; // correo
 
     @Column(nullable = false)
     private String password;
+
+    private String nombres;
+
+    private String apellidos;
+
+    private String fechaNac;
 
     private String role;
 }

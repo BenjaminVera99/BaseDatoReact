@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UsuarioService {
 
@@ -15,7 +17,7 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void register(String username, String password) {
+    public void register(String username, String password, String nombres, String apellidos, String fechaNac) {
 
         if (usuarioRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("El correo ya está registrado");
@@ -25,12 +27,21 @@ public class UsuarioService {
         usuario.setUsername(username);
         usuario.setPassword(passwordEncoder.encode(password));
 
-        usuario.setRole("USER"); // 👈 rol por defecto
+        usuario.setNombres(nombres);
+        usuario.setApellidos(apellidos);
+        usuario.setFechaNac(fechaNac);
+
+        usuario.setRole("USER");
 
         usuarioRepository.save(usuario);
     }
 
-    // ⭐ NUEVO: obtener rol desde la base de datos
+    // ⭐ NECESARIO PARA /auth/me
+    public Optional<Usuario> findByUsername(String username) {
+        return usuarioRepository.findByUsername(username);
+    }
+
+    // ⭐ Obtener rol (opcional)
     public String getRoleByUsername(String username) {
         return usuarioRepository.findByUsername(username)
                 .map(Usuario::getRole)

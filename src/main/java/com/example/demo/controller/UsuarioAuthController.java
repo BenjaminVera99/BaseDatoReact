@@ -31,15 +31,17 @@ public class UsuarioAuthController {
 
         String username = body.get("username");
         String password = body.get("password");
+        String nombres = body.get("nombres");
+        String apellidos = body.get("apellidos");
+        String fechaNac = body.get("fechaNac");
 
         try {
-            usuarioService.register(username, password);
+            usuarioService.register(username, password, nombres, apellidos, fechaNac);
             return Map.of("message", "Usuario registrado correctamente");
         } catch (RuntimeException e) {
             return Map.of("error", e.getMessage());
         }
     }
-
 
     // LOGIN DE USUARIO - DEVUELVE TOKEN JWT
     @PostMapping("/login")
@@ -71,4 +73,28 @@ public class UsuarioAuthController {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
     }
 
+    // OBTENER PERFIL DEL USUARIO
+    @GetMapping("/me")
+    public Map<String, Object> getUserInfo(@RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "");
+        String username = jwtService.extractUsername(token);
+
+        var userOpt = usuarioService.findByUsername(username);
+
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        }
+
+        var user = userOpt.get();
+
+        return Map.of(
+                "id", user.getId(),
+                "username", user.getUsername(),
+                "nombres", user.getNombres(),
+                "apellidos", user.getApellidos(),
+                "fechaNac", user.getFechaNac(),
+                "role", user.getRole()
+        );
+    }
 }
