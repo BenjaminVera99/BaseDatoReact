@@ -32,10 +32,14 @@ public class UsuarioAuthController {
         String username = body.get("username");
         String password = body.get("password");
 
-        usuarioService.register(username, password);
-
-        return Map.of("message", "Usuario registrado correctamente");
+        try {
+            usuarioService.register(username, password);
+            return Map.of("message", "Usuario registrado correctamente");
+        } catch (RuntimeException e) {
+            return Map.of("error", e.getMessage());
+        }
     }
+
 
     // LOGIN DE USUARIO - DEVUELVE TOKEN JWT
     @PostMapping("/login")

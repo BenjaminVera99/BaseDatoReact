@@ -17,15 +17,17 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Usuario register(String username, String password) {
-        Usuario usuario = Usuario.builder()
-                .username(username)
-                .password(passwordEncoder.encode(password))
-                .build();
-        return usuarioRepository.save(usuario);
-    }
+    public void register(String username, String password) {
 
-    public Optional<Usuario> findByUsername(String username) {
-        return usuarioRepository.findByUsername(username);
+        // VALIDACIÓN NUEVA: correo ya registrado
+        if (usuarioRepository.findByUsername(username).isPresent()) {
+            throw new RuntimeException("El correo ya está registrado");
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setUsername(username);
+        usuario.setPassword(passwordEncoder.encode(password));
+
+        usuarioRepository.save(usuario);
     }
 }
