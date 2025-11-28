@@ -24,4 +24,5 @@ public class Producto {
     private Double price;
     private String img;
     private Boolean onSale;
+
 }
