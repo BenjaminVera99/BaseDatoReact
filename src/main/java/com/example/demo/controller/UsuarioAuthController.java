@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.security.JwtService;
 import com.example.demo.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Usuarios", description = "Gestión de Usuarios de la Pastelería")
 public class UsuarioAuthController {
 
     @Autowired
@@ -27,6 +30,7 @@ public class UsuarioAuthController {
 
     // REGISTRO DE USUARIO
     @PostMapping("/register")
+    @Operation(summary = "Registro de Usuarios")
     public Map<String, String> register(@RequestBody Map<String, String> body) {
 
         String username = body.get("username");
@@ -45,6 +49,7 @@ public class UsuarioAuthController {
 
     // LOGIN DE USUARIO - DEVUELVE TOKEN JWT
     @PostMapping("/login")
+    @Operation(summary = "Inicio de Sesion Usuarios")
     public Map<String, String> login(@RequestBody Map<String, String> body) {
 
         String username = body.get("username");
@@ -75,6 +80,7 @@ public class UsuarioAuthController {
 
     // OBTENER PERFIL DEL USUARIO
     @GetMapping("/me")
+    @Operation(summary = "Identificar Usuario Logeado")
     public Map<String, Object> getUserInfo(@RequestHeader("Authorization") String authHeader) {
 
         String token = authHeader.replace("Bearer ", "");

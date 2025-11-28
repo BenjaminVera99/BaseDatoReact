@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/products")
-@Tag(name = "Pasteleria", description = "Gestión de Productos de la Pastelería")
+@Tag(name = "Productos", description = "Gestión de Productos de la Pastelería")
 @CrossOrigin(origins = "http://localhost:5173")
 public class ProductoController {
 
@@ -23,7 +23,7 @@ public class ProductoController {
     // ============================
 
     @GetMapping
-    @Operation(summary = "Ver una lista de productos disponibles")
+    @Operation(summary = "Ver una lista de todos los productos disponibles")
     public List<Producto> getAllProducts() {
         return productoService.getAllProducts();
     }
@@ -49,14 +49,20 @@ public class ProductoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualizar un producto existente (ADMIN)")
     public Producto updateProduct(@PathVariable Long id, @RequestBody Producto producto) {
+
         Producto existingProduct = productoService.getProductById(id);
-        if (existingProduct != null) {
-            existingProduct.setName(producto.getName());
-            existingProduct.setPrice(producto.getPrice());
-            existingProduct.setDescription(producto.getDescription());
-            return productoService.saveProduct(existingProduct);
+        if (existingProduct == null) {
+            return null;
         }
-        return null;
+
+        existingProduct.setCode(producto.getCode());
+        existingProduct.setCategory(producto.getCategory());
+        existingProduct.setName(producto.getName());
+        existingProduct.setPrice(producto.getPrice());
+        existingProduct.setImg(producto.getImg());
+        existingProduct.setOnSale(producto.getOnSale());
+
+        return productoService.saveProduct(existingProduct);
     }
 
     @DeleteMapping("/{id}")

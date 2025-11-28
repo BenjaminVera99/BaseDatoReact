@@ -32,18 +32,25 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
 
+                        // 👉 PERMITIR SWAGGER SIN AUTENTICACIÓN
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
+
                         // 👉 RUTAS PÚBLICAS
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/productos/publicos/**").permitAll()
+                        .requestMatchers("/api/products/**").permitAll()  // ✔ AHORA GET funciona en Swagger
                         .requestMatchers("/").permitAll()
 
-                        // 👉 RUTAS SOLO PARA ADMIN
+                        // 👉 SOLO ADMIN
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // 👉 RUTAS PARA USUARIOS LOGEADOS
+                        // 👉 SOLO USUARIOS LOGEADOS
                         .requestMatchers("/user/**").hasRole("USER")
 
-                        // 👉 TODAS LAS DEMÁS requieren login
+                        // 👉 EL RESTO EXIGE LOGIN
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
