@@ -41,8 +41,12 @@ public class SecurityConfig {
 
                         // 👉 RUTAS PÚBLICAS
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/products/**").permitAll()  // ✔ AHORA GET funciona en Swagger
+                        .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/").permitAll()
+                        .requestMatchers("/imagenes/**").permitAll()
+                        .requestMatchers("/css/**").permitAll()
+                        .requestMatchers( "/js/**").permitAll()
+
 
                         // 👉 SOLO ADMIN
                         .requestMatchers("/admin/**").hasRole("ADMIN")
