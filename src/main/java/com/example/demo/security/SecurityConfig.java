@@ -39,11 +39,16 @@ public class SecurityConfig {
                                 "/swagger-resources/**"
                         ).permitAll()
 
+                        .requestMatchers(
+                                "/*.png",   // Permite archivos .png en la raíz (tus imágenes)
+                                "/*.jpg",   // Permite archivos .jpg en la raíz
+                                "/*.jpeg"
+                        ).permitAll()
+
                         // 👉 RUTAS PÚBLICAS
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/imagenes/**").permitAll()
                         .requestMatchers("/css/**").permitAll()
                         .requestMatchers( "/js/**").permitAll()
 
