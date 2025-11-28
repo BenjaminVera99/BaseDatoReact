@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,7 +32,11 @@ public class UsuarioService {
         usuario.setApellidos(apellidos);
         usuario.setFechaNac(fechaNac);
 
-        usuario.setRole("USER");
+        if (username.endsWith("@admin.com")) {
+            usuario.setRole("ADMIN");
+        } else {
+            usuario.setRole("USER");
+        }
 
         usuarioRepository.save(usuario);
     }
@@ -46,5 +51,9 @@ public class UsuarioService {
         return usuarioRepository.findByUsername(username)
                 .map(Usuario::getRole)
                 .orElse("USER");
+    }
+
+    public List<Usuario> findAllUsers() {
+        return usuarioRepository.findAll();
     }
 }
