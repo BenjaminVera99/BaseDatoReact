@@ -22,46 +22,35 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
+    // 💡 IMPORTANTE: El WebSecurityCustomizer se ELIMINÓ.
+    // La exclusión de Swagger, productos y estáticos ahora se maneja en JwtAuthFilter.shouldNotFilter.
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                // Deshabilita CSRF (necesario para APIs REST sin estado)
                 .csrf(csrf -> csrf.disable())
+                // Configura la política de sesión sin estado
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
 
-                        // 👉 PERMITIR SWAGGER SIN AUTENTICACIÓN
+                        // 🔑 ÚNICAS RUTAS PÚBLICAS (El filtro JWT las ignora vía shouldNotFilter)
                         .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**"
+                                "/auth/login",
+                                "/auth/register"
                         ).permitAll()
 
-                        .requestMatchers(
-                                "/*.png",   // Permite archivos .png en la raíz (tus imágenes)
-                                "/*.jpg",   // Permite archivos .jpg en la raíz
-                                "/*.jpeg"
-                        ).permitAll()
-
-                        // 👉 RUTAS PÚBLICAS
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/products/**").permitAll()
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/css/**").permitAll()
-                        .requestMatchers( "/js/**").permitAll()
-
-
-                        // 👉 SOLO ADMIN
+                        // 👉 REGLAS DE ACCESO BASADAS EN ROL
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                        // 👉 SOLO USUARIOS LOGEADOS
                         .requestMatchers("/user/**").hasRole("USER")
 
-                        // 👉 EL RESTO EXIGE LOGIN
+                        // 👉 TODAS LAS DEMÁS RUTAS REQUIEREN UN TOKEN (Incluye /auth/me y /auth/update)
                         .anyRequest().authenticated()
                 )
+                // Asegura que el filtro JWT se ejecute antes del filtro de autenticación estándar
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

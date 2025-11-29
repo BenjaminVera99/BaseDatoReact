@@ -31,4 +31,8 @@ public class Usuario {
     private String fechaNac;
 
     private String role;
+
+    private String direccion;
+
+    private String profilePictureUri;
 }
