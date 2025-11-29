@@ -38,9 +38,9 @@ public class UsuarioService {
         usuario.setDireccion(registro.getDireccion());
 
         if (registro.getUsername().endsWith("@admin.com")) {
-            usuario.setRole("ADMIN");
+            usuario.setRole("ROLE_ADMIN");
         } else {
-            usuario.setRole("USER");
+            usuario.setRole("ROLE_USER");
         }
 
         usuarioRepository.save(usuario);
