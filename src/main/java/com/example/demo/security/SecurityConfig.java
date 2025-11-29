@@ -22,9 +22,6 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
-    // 💡 IMPORTANTE: El WebSecurityCustomizer se ELIMINÓ.
-    // La exclusión de Swagger, productos y estáticos ahora se maneja en JwtAuthFilter.shouldNotFilter.
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -37,17 +34,34 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔑 ÚNICAS RUTAS PÚBLICAS (El filtro JWT las ignora vía shouldNotFilter)
+                        // 🔑 1. RUTAS DE AUTENTICACIÓN
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/register"
                         ).permitAll()
 
+                        // 🔑 2. RUTAS PÚBLICAS, PRODUCTOS Y SWAGGER (Debe coincidir con la lista ignorada en JwtAuthFilter)
+                        .requestMatchers(
+                                "/products/**",
+                                "/api/products/**",
+
+                                // Rutas de Swagger/OpenAPI
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/configuration/**",
+                                "/webjars/**",
+
+                                // Rutas estáticas generales
+                                "/", "/*.png", "/*.jpg", "/*.jpeg", "/*.html", "/*.css", "/*.js", "/css/**", "/js/**"
+                        ).permitAll()
+
+
                         // 👉 REGLAS DE ACCESO BASADAS EN ROL
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
 
-                        // 👉 TODAS LAS DEMÁS RUTAS REQUIEREN UN TOKEN (Incluye /auth/me y /auth/update)
+                        // 👉 TODAS LAS DEMÁS RUTAS REQUIEREN UN TOKEN
                         .anyRequest().authenticated()
                 )
                 // Asegura que el filtro JWT se ejecute antes del filtro de autenticación estándar

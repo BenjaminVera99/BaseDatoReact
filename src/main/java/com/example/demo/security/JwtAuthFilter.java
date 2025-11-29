@@ -10,16 +10,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-// 🔑 NUEVAS IMPORTACIONES
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 
 @Component
@@ -31,19 +30,43 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUsuarioDetailsService usuarioDetailsService;
 
-    // 🔑 1. DEFINIR LAS RUTAS A EXCLUIR USANDO RequestMatcher
+    // 🔑 1. DEFINIR LAS RUTAS A EXCLUIR USANDO RequestMatcher (LISTA CORREGIDA)
     private final List<RequestMatcher> publicMatchers = Arrays.asList(
-            // Login y Registro
-            new AntPathRequestMatcher("/auth/**"),
-            // Rutas de productos (móvil y web)
-            new AntPathRequestMatcher("/products/**"),
-            new AntPathRequestMatcher("/api/products/**")
+            // 🔑 USAMOS RegexRequestMatcher con patrones simples
+
+            // Login y Registro: RegexRequestMatcher usa String para el método, lo que resuelve el conflicto
+            new RegexRequestMatcher("/auth/login", "POST"),
+            new RegexRequestMatcher("/auth/register", "POST"),
+
+            // Rutas de productos (sin método)
+            new RegexRequestMatcher("/products/.*", null), // El '.*' es el equivalente regex de '/**'
+            new RegexRequestMatcher("/api/products/.*", null),
+
+            // Rutas de Swagger/OpenAPI (sin método)
+            new RegexRequestMatcher("/v3/api-docs", null),
+            new RegexRequestMatcher("/v3/api-docs/.*", null),
+            new RegexRequestMatcher("/swagger-ui/.*", null),
+            new RegexRequestMatcher("/swagger-resources/.*", null),
+            new RegexRequestMatcher("/webjars/.*", null),
+            new RegexRequestMatcher("/configuration/.*", null),
+
+            // Rutas estáticas generales (sin método)
+            new RegexRequestMatcher("/", null),
+            new RegexRequestMatcher("/.*\\.png", null),
+            new RegexRequestMatcher("/.*\\.jpg", null),
+            new RegexRequestMatcher("/.*\\.jpeg", null),
+            new RegexRequestMatcher("/.*\\.html", null),
+            new RegexRequestMatcher("/.*\\.css", null),
+            new RegexRequestMatcher("/.*\\.js", null),
+            new RegexRequestMatcher("/css/.*", null),
+            new RegexRequestMatcher("/js/.*", null)
     );
 
     // 🔑 2. USAR shouldNotFilter PARA IGNORAR EL FILTRO EN RUTAS PÚBLICAS
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         // Verifica si la URI de la petición actual coincide con alguna de las rutas públicas
+        // Si coincide, devuelve true, e IGNORA el filtro.
         return publicMatchers.stream().anyMatch(matcher -> matcher.matches(request));
     }
 
@@ -54,20 +77,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ⭐ Permitir preflight CORS
+        // ⭐ Permitir preflight CORS (No cambia)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ⚠️ La lógica de exclusión se mueve a shouldNotFilter, por lo que aquí ya no está.
-
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            // Ya que shouldNotFilter asegura que solo llegamos aquí si hay token o si es una ruta protegida
-            // En una ruta protegida sin token, lanzamos el error
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Cambiado a 401
+            // Si no hay token y la ruta no fue ignorada por shouldNotFilter, es una ruta protegida.
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
             return;
         }
 
@@ -78,7 +98,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             username = jwtService.extractUsername(token);
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 (Token inválido o expirado)
             return;
         }
 
