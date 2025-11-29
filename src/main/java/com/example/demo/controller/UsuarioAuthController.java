@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/auth")
 @Tag(name = "Usuarios", description = "Gestión de Usuarios de la Pastelería")
 public class UsuarioAuthController {
