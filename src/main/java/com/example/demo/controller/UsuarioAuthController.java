@@ -142,6 +142,7 @@ public class UsuarioAuthController {
                 "nombres", user.getNombres(),
                 "apellidos", user.getApellidos(),
                 "fechaNac", user.getFechaNac(),
+                "direccion", user.getDireccion(),
                 "role", user.getRole()
         );
     }
