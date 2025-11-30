@@ -56,10 +56,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             username = jwtService.extractUsername(token);
         } catch (Exception e) {
-            // Si el token es inválido o expirado, no autenticamos, pero permitimos el paso
-            // para que Spring Security maneje la falta de autenticación en la ruta protegida.
-            // Opcional: Si quieres ser estricto con tokens inválidos, puedes devolver 403 aquí.
-            // Para simplicidad en el entorno de desarrollo, lo dejaremos pasar por ahora.
+            // ⭐ CAMBIO CLAVE: Lanza la excepción para que Spring la intercepte. ⭐
+            // Esto asegura que Spring Security pueda manejar la expiración o invalidez del JWT.
+            // Usamos 'request.setAttribute' para guardar la excepción si queremos un manejo más fino en otra clase.
+            // Pero la forma más simple es re-lanzar o dejar que falle.
+
+            // Por simplicidad y para un manejo correcto por parte de Spring Security:
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token JWT inválido o expirado");
+            return;
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

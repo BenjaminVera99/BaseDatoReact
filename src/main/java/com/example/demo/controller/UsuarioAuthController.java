@@ -19,8 +19,7 @@ import org.springframework.http.HttpStatus;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @Tag(name = "Usuarios", description = "Gestión de Usuarios de la Pastelería")
 public class UsuarioAuthController {
 
@@ -177,6 +176,26 @@ public class UsuarioAuthController {
             throw e;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al procesar la actualización.");
+        }
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "Eliminar el perfil del usuario autenticado")
+    public Map<String, String> deleteProfile(@RequestHeader("Authorization") String authHeader) {
+        // 1. Extraer el nombre de usuario (correo) del token JWT
+        String token = authHeader.replace("Bearer ", "");
+        String currentUsername = jwtService.extractUsername(token);
+
+        try {
+            // 2. Ejecutar la lógica de eliminación en el servicio
+            usuarioService.deleteUser(currentUsername);
+
+            return Map.of("message", "Usuario " + currentUsername + " eliminado correctamente.");
+
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al procesar la eliminación.");
         }
     }
 }

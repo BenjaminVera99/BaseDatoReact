@@ -81,6 +81,16 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    public void deleteUser(String username) {
+        var userOpt = usuarioRepository.findByUsername(username);
+
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado.");
+        }
+        usuarioRepository.delete(userOpt.get());
+    }
+
+
 
     // ⭐ NECESARIO PARA /auth/me
     public Optional<Usuario> findByUsername(String username) {

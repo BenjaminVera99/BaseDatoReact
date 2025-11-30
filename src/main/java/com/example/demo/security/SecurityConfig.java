@@ -62,15 +62,16 @@ public class SecurityConfig {
 
                         // 🔑 Rutas de Autenticación (Públicas)
                         .requestMatchers(
-                                "/auth/login",
-                                "/auth/register"
+                                "/api/auth/login",
+                                "/api/auth/register"
                         ).permitAll()
 
-                        // 🛒 Rutas de Carrito (Públicas)
+                        // 🛒 Rutas de Carrito (Públicas o Parcialmente Públicas)
+                        // Se colocan aquí primero para que las reglas de POST/GET se evalúen antes del anyRequest.
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/cart/add", "/api/orders/checkout").permitAll()
 
-                        // ⭐ RUTAS DE PRODUCTOS: Aseguramos que solo el GET sea público para evitar que POST/PUT se hagan sin token si no están en otra parte del código.
+                        // ⭐ RUTAS DE PRODUCTOS (Públicas)
                         .requestMatchers(HttpMethod.GET,
                                 "/products",
                                 "/products/**",
@@ -85,12 +86,14 @@ public class SecurityConfig {
                                 "/", "/*.png", "/*.jpg", "/*.jpeg", "/*.html", "/*.css", "/*.js", "/css/**", "/js/**"
                         ).permitAll()
 
-
                         // 👉 REGLAS DE ACCESO BASADAS EN ROL
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
 
-                        // 👉 TODAS LAS DEMÁS RUTAS REQUIEREN UN TOKEN
+                        // ⭐ BORRAR USUARIOS (Ruta Autenticada Específica)
+                        .requestMatchers(HttpMethod.DELETE, "/api/auth/delete").authenticated()
+
+                        // 👉 FINAL: TODAS LAS DEMÁS RUTAS REQUIEREN UN TOKEN (Debe ir al final)
                         .anyRequest().authenticated()
                 )
                 // 5. Filtro JWT
