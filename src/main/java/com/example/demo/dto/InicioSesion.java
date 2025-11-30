@@ -10,4 +10,5 @@ public class InicioSesion {
 
     private String username;
     private String password;
+    private String guestIdentifier;
 }

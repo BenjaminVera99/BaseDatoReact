@@ -13,7 +13,11 @@ public class ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    public List<Producto> getAllProducts() { // Usamos Products para consistencia
+    // NOTA: Se ha ELIMINADO la inyección de GuestCartRepository.
+
+    // --- Lógica CRUD de Producto (Única Responsabilidad) ---
+
+    public List<Producto> getAllProducts() {
         return productoRepository.findAll();
     }
 
@@ -28,4 +32,9 @@ public class ProductoService {
     public void deleteProduct(Long id) {
         productoRepository.deleteById(id);
     }
+
+    // NOTA: Todos los métodos de carrito (addToUserCart, getUserCart,
+    // deleteUserCartItem, clearUserCart, addToGuestCart, getGuestCart,
+    // deleteGuestCartItem, clearGuestCart) han sido ELIMINADOS de esta clase
+    // y deben existir únicamente en PedidoService.
 }

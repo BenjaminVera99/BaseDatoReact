@@ -13,4 +13,5 @@ public class Registro {
     private String apellidos;
     private String fechaNac;
     private String direccion;
+    private String guestIdentifier;
 }
