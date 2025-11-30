@@ -40,17 +40,20 @@ public class SecurityConfig {
                                 "/auth/register"
                         ).permitAll()
 
-                        // 🔑 2. RUTAS PÚBLICAS, PRODUCTOS Y SWAGGER (Debe coincidir con la lista ignorada en JwtAuthFilter)
+                        // 🔑 2. RUTAS PÚBLICAS, PRODUCTOS Y SWAGGER (CORRECTO: Permitir acceso sin autenticación)
                         .requestMatchers(
                                 "/products/**",
-                                "/api/products/**",
+                                "/api/products/**", // <= Esta ruta ahora pasará
 
                                 // Rutas de Swagger/OpenAPI
                                 "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
                                 "/configuration/**",
                                 "/webjars/**",
+
 
                                 // Rutas estáticas generales
                                 "/", "/*.png", "/*.jpg", "/*.jpeg", "/*.html", "/*.css", "/*.js", "/css/**", "/js/**"
