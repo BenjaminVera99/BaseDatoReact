@@ -12,7 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @RestController
 @RequestMapping("/api/products")
 @Tag(name = "Productos", description = "Gestión de Productos de la Pastelería")
-@CrossOrigin(origins = "http://localhost:5173")
+// 🚨 LÍNEA ELIMINADA: @CrossOrigin(origins = "http://localhost:5173")
 public class ProductoController {
 
     @Autowired
