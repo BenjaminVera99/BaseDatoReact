@@ -67,7 +67,6 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 🛒 Rutas de Carrito (Públicas o Parcialmente Públicas)
-                        // Se colocan aquí primero para que las reglas de POST/GET se evalúen antes del anyRequest.
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/cart/add", "/api/orders/checkout").permitAll()
 
@@ -86,12 +85,23 @@ public class SecurityConfig {
                                 "/", "/*.png", "/*.jpg", "/*.jpeg", "/*.html", "/*.css", "/*.js", "/css/**", "/js/**"
                         ).permitAll()
 
+                        // 👉 REGLAS DE ACCESO DE USUARIO LOGUEADO (AUTENTICADO)
+                        // Añadimos explícitamente los endpoints de perfil (GET y PUT) para evitar ambigüedades.
+
+                        // OBTENER PERFIL
+                        .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+
+                        // ACTUALIZAR PERFIL ⭐⭐⭐ ¡SOLUCIÓN 403! ⭐⭐⭐
+                        // Permitimos a cualquier usuario logueado (ROLE_USER o ROLE_ADMIN) actualizar su propio perfil.
+                        .requestMatchers(HttpMethod.PUT, "/api/auth/update").authenticated()
+
+                        // ELIMINAR CUENTA
+                        .requestMatchers(HttpMethod.DELETE, "/api/auth/delete").authenticated()
+
+
                         // 👉 REGLAS DE ACCESO BASADAS EN ROL
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
-
-                        // ⭐ BORRAR USUARIOS (Ruta Autenticada Específica)
-                        .requestMatchers(HttpMethod.DELETE, "/api/auth/delete").authenticated()
 
                         // 👉 FINAL: TODAS LAS DEMÁS RUTAS REQUIEREN UN TOKEN (Debe ir al final)
                         .anyRequest().authenticated()
