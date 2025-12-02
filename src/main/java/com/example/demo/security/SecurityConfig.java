@@ -28,12 +28,13 @@ public class SecurityConfig {
     private JwtAuthFilter jwtAuthFilter;
 
     // --- Configuración CORS ---
+    // Esta configuración es correcta y permite todos los orígenes.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*"); // Permite todos los métodos (GET, POST, etc.)
+        configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -49,7 +50,7 @@ public class SecurityConfig {
                 // 1. CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // 2. CSRF (Deshabilitado)
+                // 2. CSRF (Deshabilitado, necesario para APIs REST sin tokens CSRF)
                 .csrf(csrf -> csrf.disable())
 
                 // 3. Sesión (Sin estado)
@@ -60,42 +61,39 @@ public class SecurityConfig {
                 // 4. Autorización de Peticiones
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔑 Rutas de Autenticación (Públicas)
+                        // ⭐ REGLA CRÍTICA: PERMITIR TODOS LOS ENDPOINTS PÚBLICOS SIN RESTRICCIÓN
                         .requestMatchers(
+                                // Rutas de Autenticación
                                 "/api/auth/login",
-                                "/api/auth/register"
-                        ).permitAll()
+                                "/api/auth/register",
 
-                        // 🛒 Rutas de Carrito (Públicas o Parcialmente Públicas)
-                        .requestMatchers("/api/cart/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/cart/add", "/api/orders/checkout").permitAll()
+                                // Rutas de Carrito (Si deben ser públicas)
+                                "/api/cart/**",
 
-                        // ⭐ RUTAS DE PRODUCTOS (Públicas)
-                        .requestMatchers(HttpMethod.GET,
+                                // Rutas de Producto (Acceso GET es Público)
                                 "/products",
                                 "/products/**",
                                 "/api/products",
-                                "/api/products/**"
-                        ).permitAll()
+                                "/api/products/**",
 
-                        // Rutas Estáticas y Swagger (Públicas)
-                        .requestMatchers(
+                                // Rutas de Swagger/Docs/Raíz
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/", "/*.png", "/*.jpg", "/*.jpeg", "/*.html", "/*.css", "/*.js", "/css/**", "/js/**"
+                                "/",
+                                "/*.png", "/*.jpg", "/*.jpeg", "/*.html", "/*.css", "/*.js",
+                                "/css/**",
+                                "/js/**"
                         ).permitAll()
 
-                        // 👉 REGLAS DE ACCESO DE USUARIO LOGUEADO (AUTENTICADO)
-                        // Añadimos explícitamente los endpoints de perfil (GET y PUT) para evitar ambigüedades.
+                        // ⭐ CRÍTICO: Permitir el método OPTIONS para peticiones CORS pre-flight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // OBTENER PERFIL
+                        // Rutas que requieren GET pero que están envueltas en las anteriores
+                        .requestMatchers(HttpMethod.GET, "/api/cart/add", "/api/orders/checkout").permitAll()
+
+                        // Rutas de Acceso Autenticado (Usuario Logueado)
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
-
-                        // ACTUALIZAR PERFIL ⭐⭐⭐ ¡SOLUCIÓN 403! ⭐⭐⭐
-                        // Permitimos a cualquier usuario logueado (ROLE_USER o ROLE_ADMIN) actualizar su propio perfil.
                         .requestMatchers(HttpMethod.PUT, "/api/auth/update").authenticated()
-
-                        // ELIMINAR CUENTA
                         .requestMatchers(HttpMethod.DELETE, "/api/auth/delete").authenticated()
 
 
