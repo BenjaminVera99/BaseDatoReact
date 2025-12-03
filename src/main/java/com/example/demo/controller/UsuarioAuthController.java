@@ -4,7 +4,7 @@ import com.example.demo.dto.InicioSesion;
 import com.example.demo.dto.Registro;
 import com.example.demo.model.Usuario;
 import com.example.demo.security.JwtService;
-import com.example.demo.service.PedidoService; // ¡IMPORTANTE! Nuevo Servicio para la Fusión
+import com.example.demo.service.PedidoService;
 import com.example.demo.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,23 +32,18 @@ public class UsuarioAuthController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // NUEVA INYECCIÓN PARA LA LÓGICA DE CARRITO
     @Autowired
     private PedidoService pedidoService;
 
-    // ----------------------------------------------------------------------
-    // REGISTRO DE USUARIO
-    // ----------------------------------------------------------------------
+
     @PostMapping("/register")
     @Operation(summary = "Registro de Usuarios")
     public Map<String, String> register(@RequestBody Registro registro) {
 
         try {
-            // 1. Lógica de Registro (Crea la cuenta de usuario)
             usuarioService.register(registro);
 
-            // 2. LÓGICA DE FUSIÓN DE CARRITO (Post-Registro)
-            String username = registro.getUsername(); // Asumiendo que 'username' es el email
+            String username = registro.getUsername();
             String guestIdentifier = registro.getGuestIdentifier();
 
             if (guestIdentifier != null && !guestIdentifier.isEmpty()) {
@@ -56,7 +51,6 @@ public class UsuarioAuthController {
                     pedidoService.fusionarCarrito(username, guestIdentifier);
                     System.out.println("LOG: Carrito de invitado " + guestIdentifier + " fusionado tras el registro.");
                 } catch (Exception fusionError) {
-                    // La fusión falló, pero el registro fue exitoso. Solo logueamos el error.
                     System.err.println("Error al fusionar carrito después del registro: " + fusionError.getMessage());
                 }
             }
@@ -70,26 +64,22 @@ public class UsuarioAuthController {
         }
     }
 
-    // ----------------------------------------------------------------------
-    // LOGIN DE USUARIO - DEVUELVE TOKEN JWT
-    // ----------------------------------------------------------------------
+
     @PostMapping("/login")
     @Operation(summary = "Inicio de Sesion Usuarios")
     public Map<String, String> login(@RequestBody InicioSesion inicioSesion) {
 
         String username = inicioSesion.getUsername();
         String password = inicioSesion.getPassword();
-        String guestIdentifier = inicioSesion.getGuestIdentifier(); // Obtener el ID de invitado
+        String guestIdentifier = inicioSesion.getGuestIdentifier();
 
         try {
-            // 1. Lógica de Autenticación
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
 
             if (auth.isAuthenticated()) {
 
-                // 2. LÓGICA DE FUSIÓN DE CARRITO (Post-Login)
                 if (guestIdentifier != null && !guestIdentifier.isEmpty()) {
                     try {
                         pedidoService.fusionarCarrito(username, guestIdentifier);
@@ -116,11 +106,7 @@ public class UsuarioAuthController {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
     }
 
-    // ----------------------------------------------------------------------
-    // OTROS ENDPOINTS (MANTENIDOS)
-    // ----------------------------------------------------------------------
 
-    // OBTENER PERFIL DEL USUARIO
     @GetMapping("/me")
     @Operation(summary = "Identificar Usuario Logeado")
     public Map<String, Object> getUserInfo(@RequestHeader("Authorization") String authHeader) {
@@ -153,15 +139,12 @@ public class UsuarioAuthController {
             @RequestHeader("Authorization") String authHeader,
             @RequestBody com.example.demo.dto.UsuarioUpdateDto updateData)
     {
-        // 1. Extraer el nombre de usuario (correo) del token JWT
         String token = authHeader.replace("Bearer ", "");
         String currentUsername = jwtService.extractUsername(token);
 
         try {
-            // 2. Usar el servicio para actualizar la lógica crítica
             Usuario updatedUser = usuarioService.updateProfile(currentUsername, updateData);
 
-            // 3. Devolver la información actualizada (sin la contraseña, pero con el rol)
             return Map.of(
                     "message", "Perfil actualizado correctamente.",
                     "nombre", updatedUser.getNombres(),
@@ -183,12 +166,10 @@ public class UsuarioAuthController {
     @DeleteMapping("/delete")
     @Operation(summary = "Eliminar el perfil del usuario autenticado")
     public Map<String, String> deleteProfile(@RequestHeader("Authorization") String authHeader) {
-        // 1. Extraer el nombre de usuario (correo) del token JWT
         String token = authHeader.replace("Bearer ", "");
         String currentUsername = jwtService.extractUsername(token);
 
         try {
-            // 2. Ejecutar la lógica de eliminación en el servicio
             usuarioService.deleteUser(currentUsername);
 
             return Map.of("message", "Usuario " + currentUsername + " eliminado correctamente.");

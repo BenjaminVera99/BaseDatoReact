@@ -4,7 +4,6 @@ import lombok.Data;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 
-// DTO usado por el cliente (React/Kotlin) para agregar un producto al carrito
 @Data
 public class CarritoItemDto {
 

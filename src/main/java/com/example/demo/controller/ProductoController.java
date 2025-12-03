@@ -12,15 +12,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @RestController
 @RequestMapping("/api/products")
 @Tag(name = "Productos", description = "Gestión de Productos de la Pastelería")
-// 🚨 LÍNEA ELIMINADA: @CrossOrigin(origins = "http://localhost:5173")
 public class ProductoController {
 
     @Autowired
     private ProductoService productoService;
 
-    // ============================
-    //  RUTAS PÚBLICAS
-    // ============================
+
 
     @GetMapping
     @Operation(summary = "Ver una lista de todos los productos disponibles")
@@ -34,9 +31,7 @@ public class ProductoController {
         return productoService.getProductById(id);
     }
 
-    // ============================
-    //  RUTAS SOLO PARA ADMIN
-    // ============================
+
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")

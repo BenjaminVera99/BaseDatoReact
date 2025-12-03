@@ -10,7 +10,5 @@ import java.util.List;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    // Método personalizado para obtener todos los pedidos de un usuario específico.
-    // Esto es crucial para la aplicación web y móvil.
     List<Pedido> findByUsuario(Usuario usuario);
 }

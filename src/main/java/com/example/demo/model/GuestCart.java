@@ -15,13 +15,12 @@ public class GuestCart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Identificador único para el carrito del invitado (UUID)
     @Column(nullable = false)
     private String guestIdentifier;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "producto_id", nullable = false)
-    private Producto producto; // Asumo que ya tienes una entidad Producto
+    private Producto producto;
 
     @Column(nullable = false)
     private Integer cantidad;
@@ -29,7 +28,6 @@ public class GuestCart {
     @Column(nullable = false)
     private Instant fechaCreacion;
 
-    // Constructor con argumentos clave
     public GuestCart(String guestIdentifier, Producto producto, Integer cantidad) {
         this.guestIdentifier = guestIdentifier;
         this.producto = producto;

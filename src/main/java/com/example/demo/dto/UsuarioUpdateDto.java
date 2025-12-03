@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsuarioUpdateDto {
-    private String nombre; // Mapea a 'nombres' en la entidad
+    private String nombre;
     private String apellidos;
-    private String correo; // Mapea a 'username'
-    private String contrasena; // Mapea a 'password'
+    private String correo;
+    private String contrasena;
     private String fechaNac;
     private String direccion;
     private String profilePictureUri;

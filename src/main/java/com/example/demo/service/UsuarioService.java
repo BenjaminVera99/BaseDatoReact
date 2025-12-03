@@ -48,36 +48,29 @@ public class UsuarioService {
 
     public Usuario updateProfile(String currentUsername, UsuarioUpdateDto updateData) {
 
-        // 1. Buscar el usuario actual usando el username (correo) del token
         Usuario usuario = usuarioRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
-        // 2. Aplicar los cambios de campos simples (mapeando del DTO a la Entidad)
         usuario.setNombres(updateData.getNombre());
         usuario.setApellidos(updateData.getApellidos());
         usuario.setFechaNac(updateData.getFechaNac());
         usuario.setDireccion(updateData.getDireccion());
         usuario.setProfilePictureUri(updateData.getProfilePictureUri());
 
-        // 3. CAMBIO CRÍTICO: Actualización de Correo (Username)
         if (!currentUsername.equals(updateData.getCorreo())) {
-            // Valida si el nuevo correo ya está en uso
             if (usuarioRepository.findByUsername(updateData.getCorreo()).isPresent()) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "El nuevo correo ya está en uso.");
             }
-            // Si es único, actualiza el username
             usuario.setUsername(updateData.getCorreo());
         }
 
-        // 4. CAMBIO CRÍTICO: Actualización de Contraseña
-        // Solo hashea y actualiza si el usuario envió una nueva contraseña
+
         String newPassword = updateData.getContrasena();
         if (newPassword != null && !newPassword.isEmpty()) {
             String hashedPassword = passwordEncoder.encode(newPassword);
             usuario.setPassword(hashedPassword);
         }
 
-        // 5. Guardar el usuario actualizado en la base de datos
         return usuarioRepository.save(usuario);
     }
 
@@ -97,7 +90,6 @@ public class UsuarioService {
         return usuarioRepository.findByUsername(username);
     }
 
-    // ⭐ Obtener rol (opcional)
     public String getRoleByUsername(String username) {
         return usuarioRepository.findByUsername(username)
                 .map(Usuario::getRole)

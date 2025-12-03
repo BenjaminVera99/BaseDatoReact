@@ -18,7 +18,6 @@ public class JwtService {
     private static final String SECRET_KEY =
             "1234567890123456789012345678901234567890123456789012345678901234";
 
-    // 🔥 nuevo → generar token con claims (incluye rol)
     public String generateToken(String username, String role) {
 
         Map<String, Object> claims = new HashMap<>();
@@ -37,7 +36,6 @@ public class JwtService {
         return getClaims(token).getSubject();
     }
 
-    // 🔥 nuevo → obtener el rol desde el token JWT
     public String extractRole(String token) {
         return (String) getClaims(token).get("role");
     }
